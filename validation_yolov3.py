@@ -1,39 +1,57 @@
 import sys
 import os
-cwd = os.getcwd()
-if cwd not in sys.path:
-    sys.path.append(cwd)
-print(f"DEBUG: Current Working Directory: {cwd}")
-print(f"DEBUG: Python Path: {sys.path}")
-# ------------------------------------
 import torch
 import numpy as np
 
-# Add current dir to path
-sys.path.append(os.getcwd())
-
 def smoke_test():
-    print("--- Starting YOLOv3 Smoke Test ---")
+    print("--- Starting YOLOv3 Smoke Test (Robust) ---")
     
-    # 1. Check for Config
+    # 1. Debugging: Where are we? What files exist?
+    cwd = os.getcwd()
+    print(f"DEBUG: Current Working Directory: {cwd}")
+    print(f"DEBUG: Files in CWD: {os.listdir(cwd)}")
+    
+    # 2. Force Path Setup
+    if cwd not in sys.path:
+        sys.path.insert(0, cwd)
+
+    # 3. Flexible Import Strategy
+    Darknet = None
+    try:
+        # Strategy A: Standard root import (common in older commits)
+        from models import Darknet
+        print("--> Success: Imported 'Darknet' from root 'models.py'")
+    except ImportError as e1:
+        print(f"    Strategy A failed: {e1}")
+        try:
+            # Strategy B: Package import (common in newer poetry builds)
+            from pytorchyolo.models import Darknet
+            print("--> Success: Imported 'Darknet' from 'pytorchyolo.models'")
+        except ImportError as e2:
+            print(f"    Strategy B failed: {e2}")
+            print("CRITICAL ERROR: Could not import 'Darknet' model class.")
+            print("Diagnosis: The repository structure does not match expectations.")
+            sys.exit(1)
+
+    # 4. Config Setup
+    # Look for config in root or package
     config_path = "config/yolov3.cfg"
     if not os.path.exists(config_path):
-        print(f"FAIL: Config file not found at {config_path}")
-        # If config is missing, we download it (common in this repo)
-        os.makedirs("config", exist_ok=True)
-        print("--> Downloading yolov3.cfg...")
-        os.system("wget -q https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg -O config/yolov3.cfg")
+        # Try alternate location
+        config_path = "pytorchyolo/config/yolov3.cfg"
     
+    if not os.path.exists(config_path):
+        print("--> Config missing. Downloading default YOLOv3 config...")
+        os.makedirs("config", exist_ok=True)
+        os.system("wget -q https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg -O config/yolov3.cfg")
+        config_path = "config/yolov3.cfg"
+
+    # 5. Instantiate Model (The Numpy 2.0 Trap)
     try:
-        from models import Darknet
-        
-        # 2. Instantiate Model
-        # CRITICAL: This is where it crashes on Numpy 2.0
-        # The 'parse_model_config' function inside uses 'np.int'
-        print("--> Loading Darknet model...")
+        print(f"--> Loading Darknet model from {config_path}...")
         model = Darknet(config_path, img_size=416)
         
-        # 3. Dummy Forward Pass (CPU)
+        # 6. Dummy Forward Pass
         model.to('cpu')
         dummy_input = torch.randn(1, 3, 416, 416)
         
