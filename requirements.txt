@@ -1,0 +1,11 @@
+# We deliberately loosen constraints to test if AURA can catch the breakages
+torch>=1.10.1
+torchvision>=0.13.1
+numpy
+matplotlib>=3.3.3
+tensorboard>=2.10.0
+terminaltables>=3.1.0
+Pillow>=9.1.0
+tqdm>=4.64.1
+imgaug>=0.4.0
+torchsummary>=1.5.1
