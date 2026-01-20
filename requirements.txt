@@ -1,11 +1,40 @@
-# We deliberately loosen constraints to test if AURA can catch the breakages
-torch>=1.10.1
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Core ML (Strictly Pinned in TOML)
+# TOML: torch = ">=1.10.1, < 1.13.0"
+torch>=1.10.1,<1.13.0
+
+# TOML: torchvision = ">=0.13.1"
 torchvision>=0.13.1
-numpy
-matplotlib>=3.3.3
-tensorboard>=2.10.0
-terminaltables>=3.1.0
-Pillow>=9.1.0
-tqdm>=4.64.1
-imgaug>=0.4.0
-torchsummary>=1.5.1
+
+# TOML: numpy = "^1.23.4" (Poetry ^ means <NextMajor)
+numpy>=1.23.4,<2.0.0
+
+# Visualization & Tools
+# TOML: matplotlib = "^3.3.3"
+matplotlib>=3.3.3,<4.0.0
+
+# TOML: tensorboard = "^2.10.0"
+tensorboard>=2.10.0,<3.0.0
+
+# TOML: terminaltables = "^3.1.0"
+terminaltables>=3.1.0,<4.0.0
+
+# TOML: Pillow = "^9.1.0"
+Pillow>=9.1.0,<10.0.0
+
+# TOML: tqdm = "^4.64.1"
+tqdm>=4.64.1,<5.0.0
+
+# Utilities (Handling Conditional Python Versions for 3.11)
+# TOML: urllib3 ^1.23 (for python >=3.9)
+urllib3>=1.23,<2.0.0
+
+# TOML: scipy ^1.9 (for python >=3.9)
+scipy>=1.9,<2.0.0
+
+# TOML: imgaug = "^0.4.0" (0.x versions treat minor as breaking)
+imgaug>=0.4.0,<0.5.0
+
+# TOML: torchsummary = "^1.5.1"
+torchsummary>=1.5.1,<2.0.0
