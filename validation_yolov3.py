@@ -1,7 +1,11 @@
 import sys
 import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, current_dir)
+cwd = os.getcwd()
+if cwd not in sys.path:
+    sys.path.append(cwd)
+print(f"DEBUG: Current Working Directory: {cwd}")
+print(f"DEBUG: Python Path: {sys.path}")
+# ------------------------------------
 import torch
 import numpy as np
 
